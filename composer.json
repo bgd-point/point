@@ -28,6 +28,7 @@
         "xendit/xendit-php": "^2.0"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "*",
         "facade/ignition": "^2.0",
         "filp/whoops": "^2.0",
         "fzaninotto/faker": "^1.4",
@@ -58,6 +59,7 @@
     "extra": {
         "laravel": {
             "dont-discover": [
+                "barryvdh/laravel-ide-helper"
             ]
         }
     },
@@ -76,6 +78,9 @@
     "config": {
         "preferred-install": "dist",
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "symfony/thanks": true
+        }
     }
 }

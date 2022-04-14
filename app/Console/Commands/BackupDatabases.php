@@ -147,7 +147,7 @@ class BackupDatabases extends Command
             mkdir($path, 0700, true);
         }
 
-        $mySqlDump = 'mysqldump -u '.env('DB_USERNAME').' -p'.env('DB_PASSWORD');
+        $mySqlDump = 'mysqldump -u '.env('DB_USERNAME').' -h '.env('DB_HOST').' --password='.env('DB_PASSWORD');
 
         $process = Process::fromShellCommandline($mySqlDump.' '.$dbName.' --quick | gzip > "'.$path.'/'.$file.'"');
 
