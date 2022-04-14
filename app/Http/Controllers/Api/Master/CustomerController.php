@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Master;
 
+use App\Exports\Master\CustomerExport;
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Master\Customer\StoreCustomerRequest;
 use App\Http\Requests\Master\Customer\UpdateCustomerRequest;
@@ -17,6 +19,7 @@ use App\Model\Master\Phone;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\Kpi\KpiTemplateImport;
@@ -24,6 +27,8 @@ use App\Imports\Kpi\TemplateCheckImport;
 use App\Imports\Master\CustomerImport;
 use App\Model\CloudStorage;
 use App\Model\HumanResource\Kpi\KpiTemplate;
+use App\Model\Project\Project;
+
 class CustomerController extends Controller
 {
     /**
@@ -129,6 +134,47 @@ class CustomerController extends Controller
         return response()->json([
             'message' => 'success',
         ], 200);
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            $tenant = strtolower($request->header('Tenant'));
+            $key = Str::random(16);
+            $fileName = strtoupper($tenant).' - Export Master Customer';
+            $fileExt = 'xlsx';
+            $path = 'tmp/'.$tenant.'/'.$key.'.'.$fileExt;
+            $result = Excel::store(new CustomerExport($tenant, Carbon::now()->format('d M Y H:i')), $path, env('STORAGE_DISK'));
+
+            if (! $result) {
+                return response()->json([
+                    'message' => 'Failed to export',
+                ], 422);
+            }
+
+            $cloudStorage = new CloudStorage;
+            $cloudStorage->file_name = $fileName;
+            $cloudStorage->file_ext = $fileExt;
+            $cloudStorage->feature = 'master customer';
+            $cloudStorage->key = $key;
+            $cloudStorage->path = $path;
+            $cloudStorage->disk = env('STORAGE_DISK');
+            $cloudStorage->project_id = Project::where('code', strtolower($tenant))->first()->id;
+            $cloudStorage->owner_id = auth()->user()->id;
+            $cloudStorage->expired_at = Carbon::now()->addDay(1);
+            $cloudStorage->download_url = env('API_URL').'/download?key='.$key;
+            $cloudStorage->save();
+
+            return response()->json([
+                'data' => [
+                    'url' => $cloudStorage->download_url,
+                ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Failed to export, '.$th->getMessage(),
+            ], 500);
+        }
     }
 
 
