@@ -146,12 +146,6 @@ class CustomerController extends Controller
             $path = 'tmp/'.$tenant.'/'.$key.'.'.$fileExt;
             $result = Excel::store(new CustomerExport($tenant, Carbon::now()->format('d M Y H:i')), $path, env('STORAGE_DISK'));
 
-            if (! $result) {
-                return response()->json([
-                    'message' => 'Failed to export',
-                ], 422);
-            }
-
             $cloudStorage = new CloudStorage;
             $cloudStorage->file_name = $fileName;
             $cloudStorage->file_ext = $fileExt;
