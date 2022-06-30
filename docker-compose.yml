@@ -1,7 +1,8 @@
 version: "3.7"
 services:
   app:
-    image: martiendt/pointred
+    build:
+      context: .
     container_name: point-app
     restart: unless-stopped
     working_dir: /var/www

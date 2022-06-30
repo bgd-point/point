@@ -98,7 +98,7 @@ trait ApiExceptionHandler
         if ($exception->getCode() >= 500 || ! $exception->getCode()) {
             return response()->json([
                 'code' => 500,
-                'message' => 'Internal Server Error',
+                'message' => $exception->getMessage(),
             ], 500);
         }
 

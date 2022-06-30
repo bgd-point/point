@@ -73,4 +73,8 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::get('fixed-assets/depreciation-methods', 'FixedAssetController@depreciationMethodList');
     Route::apiResource('fixed-assets', 'FixedAssetController');
     Route::apiResource('fixed-asset-groups', 'FixedAssetGroupController');
+
+    Route::post("masteritems","MasterItemController@excelExtract");
+    Route::post("masteritems/create","MasterItemController@postMasterItems");
+    Route::get("masteritems/list",'MasterItemController@masterItemList');
 });

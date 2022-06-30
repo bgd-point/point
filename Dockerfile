@@ -31,11 +31,11 @@ RUN echo xdebug.mode=coverage > /usr/local/etc/php/conf.d/xdebug.ini
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # create system user to run Composer and Artisan Commands
-RUN useradd -G www-data,root -u $uuid -d /home/$user $user
-RUN mkdir -p /home/$user/.composer && \
-    chown -R $user:$user /home/$user
+#RUN useradd -G www-data,root -u $uuid -d /home/$user $user
+#RUN mkdir -p /home/$user/.composer && \
+ #   chown -R $user:$user /home/$user
 
 # set working directory
 WORKDIR /var/www
 
-USER $user
+#USER $user
