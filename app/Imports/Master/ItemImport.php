@@ -7,50 +7,82 @@ use App\Model\Master\ItemGroup;
 use App\Model\Accounting\ChartOfAccount;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\WithValidation;
 
-class ItemImport implements ToCollection
+class ItemImport implements  ToModel, SkipsOnError, SkipsOnFailure, WithValidation, WithStartRow
 {
   private $success = 0;
-  private $fail = 0;
-  private $start_row = 0;
+  // private $fail = 0;
+  // private $start_row = 0;
 
-  public function collection(Collection $rows)
+  use Importable, SkipsErrors, SkipsFailures;
+
+  public function model(array $row)
   {
-    $index = 0;
-
-    foreach ($rows as $row) {
-      $index++;
-      if($index <= $this->start_row)  {
-        continue;
+    $item = $this->generateItem($row);
+    //check chart of account
+    $accounts = ChartOfAccount::select('id')->where('alias', strtoupper($item['chart_of_account']))->first();
+    if (isset($accounts->id)) {
+      $item['chart_of_account_id'] = $accounts->id;
+      if (isset($item['group_name'])) {
+        $itemGroup = ItemGroup::select('id', 'name')->where('name', $item['group_name'])->get();
+        if ($itemGroup->isEmpty()) {
+          $itemGroup = new ItemGroup();
+          $itemGroup->name = $item['group_name'];
+          $itemGroup->save();
+          $itemGroup = [$itemGroup];
+        }
+        $item['groups'] = $itemGroup;
       }
-      if ($row[request()->get("name")] != null && $row[request()->get("code")] != null && $row[request()->get("chart_of_account")] != null) {
-          //set item
-          $item = $this->generateItem($row);    
-          //check chart of account
-          $accounts = ChartOfAccount::select('id')->where('alias', strtoupper($item['chart_of_account']))->first();
-          if(isset($accounts->id)){
-              $item['chart_of_account_id'] = $accounts->id;
-                if(isset($item['group_name'])){
-                    $itemGroup = ItemGroup::select('id','name')->where('name', $item['group_name'])->get();
-                    if($itemGroup->isEmpty()){
-                        $itemGroup = new ItemGroup();
-                        $itemGroup->name = $item['group_name'];
-                        $itemGroup->save();
-                        $itemGroup = [$itemGroup];
-                    }
-                    $item['groups'] = $itemGroup;
-                }
-                $save = Item::create($item);
-                $this->success++;
-          }else{
-              $this->fail++;
-          }
-      }else{
-        $this->fail++; 
-      }
-    }
+      $this->success += 1;
+      return new Item($item);
+    } 
   }
+
+  // public function collection(Collection $rows)
+  // {
+  //   $index = 0;
+
+  //   foreach ($rows as $row) {
+  //     $index++;
+  //     if($index <= $this->start_row)  {
+  //       continue;
+  //     }
+  //     if ($row[request()->get("name")] != null && $row[request()->get("code")] != null && $row[request()->get("chart_of_account")] != null) {
+  //         //set item
+  //         $item = $this->generateItem($row);    
+  //         //check chart of account
+  //         $accounts = ChartOfAccount::select('id')->where('alias', strtoupper($item['chart_of_account']))->first();
+  //         if(isset($accounts->id)){
+  //             $item['chart_of_account_id'] = $accounts->id;
+  //               if(isset($item['group_name'])){
+  //                   $itemGroup = ItemGroup::select('id','name')->where('name', $item['group_name'])->get();
+  //                   if($itemGroup->isEmpty()){
+  //                       $itemGroup = new ItemGroup();
+  //                       $itemGroup->name = $item['group_name'];
+  //                       $itemGroup->save();
+  //                       $itemGroup = [$itemGroup];
+  //                   }
+  //                   $item['groups'] = $itemGroup;
+  //               }
+  //               $save = Item::create($item);
+  //               $this->success++;
+  //         }else{
+  //             $this->fail++;
+  //         }
+  //     }else{
+  //       $this->fail++; 
+  //     }
+  //   }
+  // }
 
   public function generateItem($row)
   {
@@ -94,14 +126,21 @@ class ItemImport implements ToCollection
     ];
   }
 
-  public function startRow($start_row)
+  public function startRow(): int
   {
-      $this->start_row = $start_row;
+    return request()->get("start_row");
   }
 
-  public function getResult()
+  public function rules(): array
   {
-      return ["success" => $this->success, "fail" => $this->fail];
+    return [
+      '*.code' => ['unique:items,code']
+    ];
+  }
+
+  public function getSuccess()
+  {
+    return $this->success;
   }
 
 }
