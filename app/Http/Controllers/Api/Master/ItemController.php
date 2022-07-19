@@ -14,6 +14,7 @@ use App\Imports\Master\ItemImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -137,6 +138,7 @@ class ItemController extends Controller
         
         $result = new ItemImport();
         $result->import(public_path('data/' . $file_name));
+        Storage::delete('data/' . $file_name);
         return response()->json(['success'=>$result->getSuccess(), 'fails'=>count($result->errors())],200);
 
         
