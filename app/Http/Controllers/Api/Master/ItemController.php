@@ -14,6 +14,7 @@ use App\Imports\Master\ItemImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -130,15 +131,25 @@ class ItemController extends Controller
             'start_row' => 'required',
             'file' => 'required|mimes:xlsx,xls,csv|max:1024'
         ]);
-        
-        $result = new ItemImport;
-        $result->startRow(request()->get("start_row"));
-        Excel::import($result, request()->file('file'));
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $result->getResult()
-        ], 200);
+        $file = $request->file('file');
+        $file_name = time() . $file->getClientOriginalName();
+        $file->storeAs('data', $file_name);
+        
+        $result = new ItemImport();
+        $result->import(public_path('data/' . $file_name));
+        Storage::delete('data/' . $file_name);
+        return response()->json(['success'=>$result->getSuccess(), 'fails'=>count($result->errors())],200);
+
+        
+        
+        // $result->startRow(request()->get("start_row"));
+        // Excel::import($result, request()->file('file'));
+
+        // return response()->json([
+        //     'message' => 'success',
+        //     'data' => $result->getResult()
+        // ], 200);
     }
 
     /**

@@ -5,6 +5,7 @@ namespace Tests\Feature\Http\Master;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
+use App\Model\Master\Item;
 
 class ItemTest extends TestCase
 {
@@ -26,6 +27,8 @@ class ItemTest extends TestCase
           true
         );
 
+        Item::where('code', null)->delete();
+
         $send = [
             'start_row' => 3,
             'code' => 3,
@@ -45,7 +48,17 @@ class ItemTest extends TestCase
         $response = $this->post('/api/v1/master/items/import', $send, ['Content-Type:multipart/form-data']);
         // $response = $this->get('/');
 
-        // Check Status Response
         $response->assertStatus(200);
+        // Check Status Response
+
+        $this->assertDatabaseHas('point_dev.items', [
+            "code" => "BR001",
+            "name" => "Pensil"
+        ]);
+        $this->assertDatabaseHas('point_dev.items', [
+            "code" => "BR002",
+            "name" => "Penghapus"
+        ]);
+        
     }
 }
