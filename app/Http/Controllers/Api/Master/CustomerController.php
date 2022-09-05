@@ -24,6 +24,12 @@ use App\Imports\Kpi\TemplateCheckImport;
 use App\Imports\Master\CustomerImport;
 use App\Model\CloudStorage;
 use App\Model\HumanResource\Kpi\KpiTemplate;
+use Illuminate\Support\Str;
+use App\Exports\MasterCustomerExport;
+use App\Model\Project\Project;
+use App\Model\Master\BranchUser;
+use Carbon\Carbon;
+
 class CustomerController extends Controller
 {
     /**
@@ -80,7 +86,7 @@ class CustomerController extends Controller
                 break;
             }
         }
-        
+
         $customer = new Customer;
         $customer->fill($request->all());
         $customer->branch_id = $defaultBranch;
@@ -129,6 +135,45 @@ class CustomerController extends Controller
         return response()->json([
             'message' => 'success',
         ], 200);
+    }
+
+    public function exportCustomer(Request $request)
+    {
+      $user = tenant(auth()->user()->id);
+      $userBranch = BranchUser::where('user_id', $user->id)->get()->toArray();
+
+      $tenant = strtolower($request->header('Tenant'));
+      $key = Str::random(16);
+      $fileName = strtoupper($tenant)
+        .' - Master Customers Export - ';
+      $fileExt = 'xlsx';
+      $path = 'tmp/'.$tenant.'/'.$key.'.'.$fileExt;
+      $result = Excel::store(new MasterCustomerExport($userBranch), $path, env('STORAGE_DISK'));
+
+      if (! $result) {
+          return response()->json([
+              'message' => 'Failed to export',
+          ], 422);
+      }
+
+      $cloudStorage = new CloudStorage();
+      $cloudStorage->file_name = $fileName;
+      $cloudStorage->file_ext = $fileExt;
+      $cloudStorage->feature = 'customer';
+      $cloudStorage->key = $key;
+      $cloudStorage->path = $path;
+      $cloudStorage->disk = env('STORAGE_DISK');
+      $cloudStorage->project_id = Project::where('code', strtolower($tenant))->first()->id;
+      $cloudStorage->owner_id = 1;
+      $cloudStorage->expired_at = Carbon::now()->addDay(1);
+      $cloudStorage->download_url = env('API_URL').'/download?key='.$key;
+      $cloudStorage->save();
+
+      return response()->json([
+          'data' => [
+              'url' => $cloudStorage->download_url,
+          ],
+      ], 200);
     }
 
 

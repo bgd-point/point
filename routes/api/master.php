@@ -14,7 +14,7 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::apiResource('user-roles', 'UserRoleController');
 
     // Master
-    Route::apiResource('groups', 'GroupController');
+    #Route::apiResource('groups', 'GroupController');
     Route::apiResource('warehouses', 'WarehouseController');
     Route::patch('branch-users/update-default', 'BranchUserController@updateDefault');
     Route::post('branch-users/attach', 'BranchUserController@attach');
@@ -42,6 +42,7 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::post('customer-groups/detach', 'CustomerGroupController@detach');
     Route::apiResource('customer-groups', 'CustomerGroupController');
     Route::post('customers/import', 'CustomerController@importCustomer');
+    Route::post('customers/export', 'CustomerController@exportCustomer');
     Route::put('customers/{id}/archive', 'CustomerController@archive');
     Route::patch('customers/{id}/archive', 'CustomerController@archive');
     Route::put('customers/bulk-archive', 'CustomerController@bulkArchive');

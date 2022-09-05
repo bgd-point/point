@@ -6,6 +6,8 @@ use App\Model\Accounting\ChartOfAccount;
 use App\Model\Accounting\ChartOfAccountType;
 use App\Model\Accounting\Journal;
 use App\Model\MasterModel;
+use App\Model\Master\PricingGroup;
+use App\Model\Master\CustomerCustomerGroup;
 use App\Traits\Model\Master\CustomerJoin;
 use App\Traits\Model\Master\CustomerRelation;
 
@@ -85,5 +87,26 @@ class Customer extends MasterModel
             ->first();
 
         return $receivables->debit - $receivables->credit;
+    }
+
+    /**
+     * Get the ancestor customer group.
+     */
+    public function customerGroup()
+    {
+
+        return $this->hasOneThrough(CustomerGroup::class, CustomerCustomerGroup::class,
+            'customer_id', // Foreign key on the environments table...
+            'id', // Foreign key on the customer group table...
+            'id', // Local key on the customer table...
+            'customer_group_id'); // Local key on the environments table...);
+    }
+
+    /**
+     * Get the ancestor price group.
+     */
+    public function priceGroup()
+    {
+        return $this->belongsTo(PricingGroup::class, 'pricing_group_id', 'id');
     }
 }
