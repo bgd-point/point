@@ -24,6 +24,11 @@ use App\Imports\Kpi\TemplateCheckImport;
 use App\Imports\Master\CustomerImport;
 use App\Model\CloudStorage;
 use App\Model\HumanResource\Kpi\KpiTemplate;
+use Illuminate\Support\Str;
+use App\Exports\CustomerExport;
+use App\Model\Master\BranchUser;
+use App\Model\Project\Project;
+use Carbon\Carbon;
 class CustomerController extends Controller
 {
     /**
@@ -131,6 +136,34 @@ class CustomerController extends Controller
         ], 200);
     }
 
+    public function exportCustomer(Request $request)
+    {
+        $userBranch = BranchUser::where('user_id', auth()->user()->id)->pluck('branch_id');
+      $tenant = strtolower($request->header('Tenant'));
+      $key = Str::random(16);
+      $fileName = strtoupper($tenant) . ' - Customers Export';
+      $fileExt = 'xlsx';
+      $path = 'tmp/'.$tenant.'/'.$key.'.'.$fileExt;
+      Excel::store(new CustomerExport(), $path, env('STORAGE_DISK'));
+
+      $cloudStorage = new CloudStorage();
+      $cloudStorage->file_name = $fileName;
+      $cloudStorage->file_ext = $fileExt;
+      $cloudStorage->feature = 'customer';
+      $cloudStorage->key = $key;
+      $cloudStorage->path = $path;
+      $cloudStorage->disk = env('STORAGE_DISK');
+      $cloudStorage->owner_id = auth()->user()->id;
+      $cloudStorage->download_url = env('API_URL').'/download?key='.$key;
+      $cloudStorage->save();
+
+      return response()->json([
+          'data' => [
+              'url' => $cloudStorage->download_url,
+            //   'url' => $userBranch,
+          ],
+      ], 200);
+    }
 
     /**
      * Display the specified resource.
