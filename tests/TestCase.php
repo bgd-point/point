@@ -153,7 +153,7 @@ abstract class TestCase extends BaseTestCase
         $hasRole->save();
     }
 
-    protected function setPermission()
+    protected function  setPermission()
     {
         $permission = \App\Model\Auth\Permission::createIfNotExists('read pin point sales visitation form');
         $hasPermission = new \App\Model\Auth\ModelHasPermission();
@@ -186,5 +186,15 @@ abstract class TestCase extends BaseTestCase
         $project->package_id = $package->id;
         $project->expired_date = date('Y-m-d H:i:s');
         $project->save();
+    }
+
+    protected function  setPermissionReadCustomer()
+    {
+        $permission = \App\Model\Auth\Permission::createIfNotExists('read customer');
+        $hasPermission = new \App\Model\Auth\ModelHasPermission();
+        $hasPermission->permission_id = $permission->id;
+        $hasPermission->model_type = 'App\Model\Master\User';
+        $hasPermission->model_id = $this->user->id;
+        $hasPermission->save();
     }
 }

@@ -34,6 +34,7 @@ class LoginController extends Controller
             ], 401);
         }
 
+
         $user = auth()->guard('web')->user();
 
         $tokenResult = $user->createToken($user->name);

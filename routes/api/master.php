@@ -73,4 +73,5 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::get('fixed-assets/depreciation-methods', 'FixedAssetController@depreciationMethodList');
     Route::apiResource('fixed-assets', 'FixedAssetController');
     Route::apiResource('fixed-asset-groups', 'FixedAssetGroupController');
+    Route::post('export', 'ExportController@export');
 });
