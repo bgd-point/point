@@ -86,4 +86,15 @@ class Customer extends MasterModel
 
         return $receivables->debit - $receivables->credit;
     }
+
+    public function customerGroup()
+    {
+
+        return $this->hasOneThrough(CustomerGroup::class, CustomerCustomerGroup::class, 'customer_id', 'id', 'id', 'customer_group_id');
+    }
+    
+    public function priceGroup()
+    {
+        return $this->belongsTo(PricingGroup::class, 'pricing_group_id', 'id');
+    }
 }
