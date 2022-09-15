@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Master;
 
+use App\Exports\CustomersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Master\Customer\StoreCustomerRequest;
 use App\Http\Requests\Master\Customer\UpdateCustomerRequest;
@@ -24,6 +25,10 @@ use App\Imports\Kpi\TemplateCheckImport;
 use App\Imports\Master\CustomerImport;
 use App\Model\CloudStorage;
 use App\Model\HumanResource\Kpi\KpiTemplate;
+use App\Model\Project\Project;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
+
 class CustomerController extends Controller
 {
     /**
@@ -291,5 +296,43 @@ class CustomerController extends Controller
         }
 
         return response()->json([], 200);
+    }
+
+    /**
+     * Export list of customer to excel.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function export(Request $request)
+    {
+        $user = tenant(auth()->user()->id);
+        $tenant = strtolower($request->header('Tenant'));
+        $key = Str::random(16);
+        $fileName = strtoupper($tenant).' - Customers - '.date('dMY');
+        $fileExt = 'xlsx';
+        $path = 'tmp/'.$tenant.'/'.$key.'.'.$fileExt;
+        Excel::store(new CustomersExport($user), $path, env('STORAGE_DISK'));
+
+        $project = Project::where('code', strtolower($tenant))->first();
+        $cloudStorage = new CloudStorage;
+        $cloudStorage->file_name = $fileName;
+        $cloudStorage->file_ext = $fileExt;
+        $cloudStorage->feature = 'customers';
+        $cloudStorage->key = $key;
+        $cloudStorage->path = $path;
+        $cloudStorage->disk = env('STORAGE_DISK');
+        $cloudStorage->project_id = $project ? $project->id : null;
+        $cloudStorage->owner_id = auth()->user()->id;
+        $cloudStorage->expired_at = Carbon::now()->addDay(1);
+        $cloudStorage->download_url = env('API_URL').'/download?key='.$key;
+        $cloudStorage->save();
+
+        return response()->json([
+            'data' => [
+                'url' => $cloudStorage->download_url,
+                'file_name' => $fileName.'.'.$fileExt
+            ],
+        ], 200);
     }
 }
