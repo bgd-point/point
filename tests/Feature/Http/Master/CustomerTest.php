@@ -31,4 +31,13 @@ class CustomerTest extends TestCase
             'name' => $data['name'],
         ], 'tenant');
     }
+
+    /** @test */
+    public function export_customers_success()
+    {
+        //Check customer export file feature
+        $response = $this->json('POST', 'api/v1/master/customers/export', [], [$this->headers]);
+        //Check success status
+        $response->assertStatus(200);
+    }
 }

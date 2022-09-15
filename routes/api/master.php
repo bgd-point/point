@@ -52,6 +52,7 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::patch('customers/bulk-activate', 'CustomerController@bulkActivate');
     Route::put('customers/bulk-delete', 'CustomerController@bulkDelete');
     Route::patch('customers/bulk-delete', 'CustomerController@bulkDelete');
+    Route::post('customers/export', 'CustomerController@export');
     Route::apiResource('customers', 'CustomerController');
     Route::apiResource('price-list-items', 'PriceListItemController');
     Route::apiResource('price-list-services', 'PriceListServiceController');
