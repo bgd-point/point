@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Files\LocalTemporaryFile;
 use Maatwebsite\Excel\Excel;
 
 
-class McustomerExport implements WithEvents
+class MCustomerExport implements WithEvents
 {
     protected $customers;
 
