@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Master;
 
+use App\Exports\customerExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Master\Customer\StoreCustomerRequest;
 use App\Http\Requests\Master\Customer\UpdateCustomerRequest;
@@ -24,17 +25,17 @@ use App\Imports\Kpi\TemplateCheckImport;
 use App\Imports\Master\CustomerImport;
 use App\Model\CloudStorage;
 use App\Model\HumanResource\Kpi\KpiTemplate;
-class CustomerController extends Controller
-{
+use Exception;
+
+class CustomerController extends Controller {
     /**
      * Display a listing of the resource.
      *
      * @param Request $request
      * @return \App\Http\Resources\ApiCollection
      */
-    public function index(Request $request)
-    {
-        $customers = Customer::from(Customer::getTableName().' as '.Customer::$alias)->eloquentFilter($request);
+    public function index(Request $request) {
+        $customers = Customer::from(Customer::getTableName() . ' as ' . Customer::$alias)->eloquentFilter($request);
 
         $customers = Customer::joins($customers, $request->get('join'));
 
@@ -68,19 +69,18 @@ class CustomerController extends Controller
      *
      * @return \App\Http\Resources\ApiResource
      */
-    public function store(StoreCustomerRequest $request)
-    {
+    public function store(StoreCustomerRequest $request) {
         DB::connection('tenant')->beginTransaction();
 
         $user = tenant(auth()->user()->id);
         $defaultBranch = null;
-        foreach($user->branches as $branch) {
+        foreach ($user->branches as $branch) {
             if ($branch->pivot->is_default == true) {
                 $defaultBranch = $branch->id;
                 break;
             }
         }
-        
+
         $customer = new Customer;
         $customer->fill($request->all());
         $customer->branch_id = $defaultBranch;
@@ -88,9 +88,9 @@ class CustomerController extends Controller
 
         if ($request->has('groups')) {
             foreach ($request->get('groups') as $arrGroups) {
-                if (! empty($arrGroups['name'])) {
+                if (!empty($arrGroups['name'])) {
                     $group = CustomerGroup::where('name', $arrGroups['name'])->first();
-                    if (! $group) {
+                    if (!$group) {
                         $group = new CustomerGroup;
                         $group->name = $arrGroups['name'];
                         $group->save();
@@ -113,8 +113,13 @@ class CustomerController extends Controller
         return new ApiResource($customer);
     }
 
-    public function importCustomer(Request $request)
-    {
+    public function exportCustomer() {
+        return Excel::download(new customerExport(), 'customers.xlsx', \Maatwebsite\Excel\Excel::XLSX, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        ]);
+    }
+
+    public function importCustomer(Request $request) {
         $request->validate([
             'code' => 'required',
             'name' => 'required',
@@ -139,13 +144,12 @@ class CustomerController extends Controller
      * @param  int $id
      * @return \App\Http\Resources\ApiResource
      */
-    public function show(Request $request, $id)
-    {
-        $customer = Customer::from(Customer::getTableName().' as '.Customer::$alias)->eloquentFilter($request);
+    public function show(Request $request, $id) {
+        $customer = Customer::from(Customer::getTableName() . ' as ' . Customer::$alias)->eloquentFilter($request);
 
         $customer = Customer::joins($customer, $request->get('join'));
 
-        $customer = $customer->where(Customer::$alias.'.id', $id)->first();
+        $customer = $customer->where(Customer::$alias . '.id', $id)->first();
 
         if ($request->get('total_payable')) {
             $customer->total_payable = $customer->totalAccountPayable();
@@ -165,8 +169,7 @@ class CustomerController extends Controller
      *
      * @return \App\Http\Resources\ApiResource
      */
-    public function update(UpdateCustomerRequest $request, $id)
-    {
+    public function update(UpdateCustomerRequest $request, $id) {
         DB::connection('tenant')->beginTransaction();
 
         $customer = Customer::findOrFail($id);
@@ -175,9 +178,9 @@ class CustomerController extends Controller
 
         if ($request->has('groups')) {
             foreach ($request->get('groups') as $arrGroups) {
-                if (! empty($arrGroups['name'])) {
+                if (!empty($arrGroups['name'])) {
                     $group = CustomerGroup::where('name', $arrGroups['name'])->first();
-                    if (! $group) {
+                    if (!$group) {
                         $group = new CustomerGroup;
                         $group->name = $arrGroups['name'];
                         $group->save();
@@ -206,8 +209,7 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return JsonResponse
      */
-    public function destroy($id)
-    {
+    public function destroy($id) {
         $customer = Customer::findOrFail($id);
         $customer->delete();
 
@@ -220,8 +222,7 @@ class CustomerController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function bulkDelete(Request $request)
-    {
+    public function bulkDelete(Request $request) {
         $customers = $request->get('customers');
         foreach ($customers as $customer) {
             $customer = Customer::findOrFail($customer['id']);
@@ -237,8 +238,7 @@ class CustomerController extends Controller
      * @param int $id
      * @return ApiResource
      */
-    public function archive($id)
-    {
+    public function archive($id) {
         $customer = Customer::findOrFail($id);
         $customer->archive();
 
@@ -251,8 +251,7 @@ class CustomerController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function bulkArchive(Request $request)
-    {
+    public function bulkArchive(Request $request) {
         $customers = $request->get('customers');
         foreach ($customers as $customer) {
             $customer = Customer::findOrFail($customer['id']);
@@ -268,8 +267,7 @@ class CustomerController extends Controller
      * @param int $id
      * @return ApiResource
      */
-    public function activate($id)
-    {
+    public function activate($id) {
         $customer = Customer::findOrFail($id);
         $customer->activate();
 
@@ -282,8 +280,7 @@ class CustomerController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function bulkActivate(Request $request)
-    {
+    public function bulkActivate(Request $request) {
         $customers = $request->get('customers');
         foreach ($customers as $customer) {
             $customer = Customer::findOrFail($customer['id']);

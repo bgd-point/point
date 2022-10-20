@@ -4,18 +4,15 @@ namespace Tests\Feature\Http\Master;
 
 use Tests\TestCase;
 
-class CustomerTest extends TestCase
-{
-    public function setUp(): void
-    {
+class CustomerTest extends TestCase {
+    public function setUp(): void {
         parent::setUp();
 
         $this->signIn();
     }
 
     /** @test */
-    public function create_customer_test()
-    {
+    public function create_customer_test() {
         $data = [
             'name' => $this->faker->name,
         ];
@@ -30,5 +27,13 @@ class CustomerTest extends TestCase
         $this->assertDatabaseHas('customers', [
             'name' => $data['name'],
         ], 'tenant');
+    }
+
+    public function export_customer_test() {
+        // API Request
+        $response = $this->json('GET', '/api/v1/master/customers/export', [$this->headers]);
+
+        // Check Status Response
+        $response->assertStatus(200);
     }
 }
