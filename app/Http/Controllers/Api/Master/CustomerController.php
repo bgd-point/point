@@ -22,6 +22,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\Kpi\KpiTemplateImport;
 use App\Imports\Kpi\TemplateCheckImport;
 use App\Imports\Master\CustomerImport;
+use App\Exports\Master\CustomerExport;
 use App\Model\CloudStorage;
 use App\Model\HumanResource\Kpi\KpiTemplate;
 class CustomerController extends Controller
@@ -131,6 +132,10 @@ class CustomerController extends Controller
         ], 200);
     }
 
+    public function exportCustomer()
+    {
+        return Excel::download(new CustomerExport, 'customer.xlsx');
+    }
 
     /**
      * Display the specified resource.
