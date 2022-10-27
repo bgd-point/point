@@ -104,6 +104,7 @@ class PermissionSeeder extends Seeder
             Permission::createIfNotExists('delete '.$permission);
             Permission::createIfNotExists('approve '.$permission);
         }
+        Permission::createIfNotExists('export customer');
     }
 
     private function setExpeditionPermission()
