@@ -1,5 +1,7 @@
 <?php
 
+
+
 Route::prefix('master')->namespace('Master')->group(function () {
     // User, Role and Permission
     Route::post('user-warehouses/attach', 'UserWarehouseController@attach');
@@ -41,17 +43,20 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::post('customer-groups/attach', 'CustomerGroupController@attach');
     Route::post('customer-groups/detach', 'CustomerGroupController@detach');
     Route::apiResource('customer-groups', 'CustomerGroupController');
-    Route::post('customers/import', 'CustomerController@importCustomer');
-    Route::put('customers/{id}/archive', 'CustomerController@archive');
-    Route::patch('customers/{id}/archive', 'CustomerController@archive');
-    Route::put('customers/bulk-archive', 'CustomerController@bulkArchive');
-    Route::patch('customers/bulk-archive', 'CustomerController@bulkArchive');
-    Route::put('customers/{id}/activate', 'CustomerController@activate');
-    Route::patch('customers/{id}/activate', 'CustomerController@activate');
-    Route::put('customers/bulk-activate', 'CustomerController@bulkActivate');
-    Route::patch('customers/bulk-activate', 'CustomerController@bulkActivate');
-    Route::put('customers/bulk-delete', 'CustomerController@bulkDelete');
-    Route::patch('customers/bulk-delete', 'CustomerController@bulkDelete');
+    Route::prefix('customers')->name('customers.')->group(function (){
+        Route::get('export','CustomerController@exportCustomerExcel');
+        Route::post('import', 'CustomerController@importCustomer');
+        Route::put('{id}/archive', 'CustomerController@archive');
+        Route::patch('{id}/archive', 'CustomerController@archive');
+        Route::put('bulk-archive', 'CustomerController@bulkArchive');
+        Route::patch('bulk-archive', 'CustomerController@bulkArchive');
+        Route::put('{id}/activate', 'CustomerController@activate');
+        Route::patch('{id}/activate', 'CustomerController@activate');
+        Route::put('bulk-activate', 'CustomerController@bulkActivate');
+        Route::patch('bulk-activate', 'CustomerController@bulkActivate');
+        Route::put('bulk-delete', 'CustomerController@bulkDelete');
+        Route::patch('bulk-delete', 'CustomerController@bulkDelete');
+    });
     Route::apiResource('customers', 'CustomerController');
     Route::apiResource('price-list-items', 'PriceListItemController');
     Route::apiResource('price-list-services', 'PriceListServiceController');

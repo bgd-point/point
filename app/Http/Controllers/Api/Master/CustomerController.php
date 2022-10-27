@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Master;
 
+use App\Exports\Customer\CustomerExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Master\Customer\StoreCustomerRequest;
 use App\Http\Requests\Master\Customer\UpdateCustomerRequest;
@@ -24,6 +25,9 @@ use App\Imports\Kpi\TemplateCheckImport;
 use App\Imports\Master\CustomerImport;
 use App\Model\CloudStorage;
 use App\Model\HumanResource\Kpi\KpiTemplate;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
+
 class CustomerController extends Controller
 {
     /**
@@ -35,7 +39,6 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $customers = Customer::from(Customer::getTableName().' as '.Customer::$alias)->eloquentFilter($request);
-
         $customers = Customer::joins($customers, $request->get('join'));
 
         $user = tenant(auth()->user()->id);
@@ -53,7 +56,6 @@ class CustomerController extends Controller
         } else {
             $customers = $customers->whereNull('archived_at');
         }
-
         $customers->whereIn('customer.branch_id', $user->branches->pluck('id'));
 
         $customers = pagination($customers, $request->get('limit'));
@@ -291,5 +293,18 @@ class CustomerController extends Controller
         }
 
         return response()->json([], 200);
+    }
+
+    /**
+     * Download xlsx file for current user customers
+     *
+     * @return BinaryFileResponse|JsonResponse
+     */
+    public function exportCustomerExcel()
+    {
+        if(tenant()->hasPermissionTo('export customer')){
+            return Excel::download(new CustomerExport(), 'customer.xlsx');
+        }
+        return response()->json([], Response::HTTP_FORBIDDEN);
     }
 }
