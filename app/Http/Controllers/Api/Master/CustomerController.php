@@ -14,6 +14,7 @@ use App\Model\Master\Customer;
 use App\Model\Master\CustomerGroup;
 use App\Model\Master\Email;
 use App\Model\Master\Phone;
+use App\Exports\CustomersExport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -131,7 +132,13 @@ class CustomerController extends Controller
         ], 200);
     }
 
-
+    public function exportCustomer(Request $request)
+    {
+        $branch_id = $request->branch_id;
+        (new CustomersExport)->forBranch($branch_id)->store('customers.xlsx');
+        $data = storage_path('app/customers.xlsx');        
+        return response()->download($data);
+    }
     /**
      * Display the specified resource.
      *
