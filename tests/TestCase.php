@@ -87,7 +87,7 @@ abstract class TestCase extends BaseTestCase
         $tenantUser->name = $this->user->name;
         $tenantUser->email = $this->user->email;
         $tenantUser->save();
-
+        
         $this->userBranch($tenantUser);
     }
 
@@ -186,5 +186,26 @@ abstract class TestCase extends BaseTestCase
         $project->package_id = $package->id;
         $project->expired_date = date('Y-m-d H:i:s');
         $project->save();
+    }
+
+    protected function signInAdmin()
+    {
+        $this->user = factory(User::class)->create();
+
+        $this->actingAs($this->user, 'api');
+
+        $this->connectTenantUserAdmin();
+    }
+
+    protected function connectTenantUserAdmin()
+    {
+        $tenantUser = new \App\Model\Master\User();
+        $tenantUser->id = $this->user->id;
+        $tenantUser->name = $this->user->name;
+        $tenantUser->email = $this->user->email;
+        // $tenantUser->branch_id = 1;
+        $tenantUser->save();
+        
+        $this->userBranch($tenantUser);
     }
 }

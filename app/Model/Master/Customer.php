@@ -8,6 +8,8 @@ use App\Model\Accounting\Journal;
 use App\Model\MasterModel;
 use App\Traits\Model\Master\CustomerJoin;
 use App\Traits\Model\Master\CustomerRelation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Customer extends MasterModel
 {
@@ -85,5 +87,16 @@ class Customer extends MasterModel
             ->first();
 
         return $receivables->debit - $receivables->credit;
+    }
+
+    public function pricingGroup()
+    {
+        return $this->hasOne(PricingGroup::class, 'id', 'pricing_group_id');   
+    }
+
+    public function customerGroup(){
+        return $this->belongsToMany(
+            CustomerGroup::class, 'customer_customer_group'
+        );
     }
 }

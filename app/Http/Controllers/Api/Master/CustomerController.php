@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\Master;
 
+use App\Exports\Master\CustomerExport;
+use App\Exports\CustomersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Master\Customer\StoreCustomerRequest;
 use App\Http\Requests\Master\Customer\UpdateCustomerRequest;
@@ -129,6 +131,15 @@ class CustomerController extends Controller
         return response()->json([
             'message' => 'success',
         ], 200);
+    }
+
+    public function exportCustomer(Request $request)
+    {
+        $date_now = date("Y-m-d H:i:s");
+        // dd($date_now);
+        $result = Excel::download(new CustomerExport(auth()->user()->id), "export_customer_".$date_now.".xlsx");
+
+        return $result;
     }
 
 
