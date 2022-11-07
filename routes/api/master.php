@@ -42,6 +42,7 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::post('customer-groups/detach', 'CustomerGroupController@detach');
     Route::apiResource('customer-groups', 'CustomerGroupController');
     Route::post('customers/import', 'CustomerController@importCustomer');
+    Route::get('customers/export', 'CustomerController@exportCustomer');
     Route::put('customers/{id}/archive', 'CustomerController@archive');
     Route::patch('customers/{id}/archive', 'CustomerController@archive');
     Route::put('customers/bulk-archive', 'CustomerController@bulkArchive');

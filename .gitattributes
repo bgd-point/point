@@ -1,4 +1,4 @@
-* text=auto
+* text=off
 *.css linguist-vendored
 *.scss linguist-vendored
 *.js linguist-vendored

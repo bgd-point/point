@@ -87,13 +87,14 @@ abstract class TestCase extends BaseTestCase
         $tenantUser->name = $this->user->name;
         $tenantUser->email = $this->user->email;
         $tenantUser->save();
-
+        
         $this->userBranch($tenantUser);
     }
 
     protected function userBranch($tenantUser)
     {
         $branch = $this->createBranch();
+        logger($branch->id);
         $tenantUser->branches()->syncWithoutDetaching($branch->id);
         foreach ($tenantUser->branches as $branch) {
             $branch->pivot->is_default = true;

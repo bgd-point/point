@@ -1,0 +1,30 @@
+<table>
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>#</th>
+        <th>#</th>
+        <th>#</th>
+        <th>#</th>
+        <th>#</th>
+        <th>#</th>
+        <th>#</th>
+        <th>#</th>
+    </tr>
+    </thead>
+    <tbody>
+        @foreach ($customers as $customer)
+            <tr>
+                <td>{{ $customer->name }}</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+                <td>#</td>
+            </tr>
+        @endforeach
+    </tbody>
+</table>
