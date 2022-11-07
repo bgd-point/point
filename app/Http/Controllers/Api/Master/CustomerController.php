@@ -133,9 +133,9 @@ class CustomerController extends Controller
         ], 200);
     }
 
-    public function exportCustomer(Request $request)
+    public function exportCustomer()
     {
-        $date_now = date("Y-m-d H:i:s");
+        $date_now = date("Y-m-d H:i");
         // dd($date_now);
         $result = Excel::download(new CustomerExport(auth()->user()->id), "export_customer_".$date_now.".xlsx");
 
