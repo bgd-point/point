@@ -43,6 +43,16 @@ class Customer extends MasterModel
 
     public static $alias = 'customer';
 
+    public function pricingGroup()
+    {
+        return $this->belongsTo(PricingGroup::class, 'pricing_group_id');
+    }
+
+    public function customerGroup()
+    {
+        return $this->belongsToMany(CustomerGroup::class);
+    }
+
     public function getLabelAttribute()
     {
         $label = $this->code ? '['.$this->code.'] ' : '';
