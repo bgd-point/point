@@ -17,7 +17,7 @@ Install Docker Desktop https://www.docker.com/products/docker-desktop/
 1. Clone Project and run Docker
 ```bash
 # clone project or download from github https://github.com/bgd-point/point/archive/refs/heads/alpha1.zip
-git clone git@github.com:point-red/point.git
+git clone git@github.com:bgd-point/point.git
 # go to your project directory
 cd point
 # copy `.env.example` to `.env`
