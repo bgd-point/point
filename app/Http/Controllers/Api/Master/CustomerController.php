@@ -24,6 +24,12 @@ use App\Imports\Kpi\TemplateCheckImport;
 use App\Imports\Master\CustomerImport;
 use App\Model\CloudStorage;
 use App\Model\HumanResource\Kpi\KpiTemplate;
+
+use App\Exports\Customers\CustomerExport;
+use Illuminate\Support\Str;
+use App\Model\Project\Project;
+use Carbon\Carbon;
+
 class CustomerController extends Controller
 {
     /**
@@ -129,6 +135,40 @@ class CustomerController extends Controller
         return response()->json([
             'message' => 'success',
         ], 200);
+    }
+
+    public function exportCustomer(Request $request){
+        
+
+        try {
+            $tenant = strtolower($request->header('Tenant'));
+            $key = Str::random(16);
+            $fileName = strtoupper($tenant).' - Customers';
+            $fileExt = 'xlsx';
+            $path = 'tmp/'.$tenant.'/'.$key.'.'.$fileExt;
+
+            Excel::store(new CustomerExport($tenant), $path, env('STORAGE_DISK'));
+
+            $cloudStorage = new CloudStorage;
+            $cloudStorage->file_name = $fileName;
+            $cloudStorage->file_ext = $fileExt;
+            $cloudStorage->feature = 'Tenant Customer Export';
+            $cloudStorage->key = $key;
+            $cloudStorage->path = $path;
+            $cloudStorage->disk = env('STORAGE_DISK');
+            $cloudStorage->project_id = Project::where('code', strtolower($tenant))->first()->id;
+            $cloudStorage->owner_id = auth()->user()->id;
+            $cloudStorage->expired_at = Carbon::now()->addDay(1);
+            $cloudStorage->download_url = env('API_URL').'/download?key='.$key;
+            $cloudStorage->save();
+
+            return response()->json([
+                'data' => [ 'url' => $cloudStorage->download_url ],
+            ], 200);
+        } catch (\Throwable $th) {
+            return response_error($th);
+        }
+    
     }
 
 
