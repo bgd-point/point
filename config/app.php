@@ -180,6 +180,7 @@ return [
         Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         Milon\Barcode\BarcodeServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*
@@ -229,6 +230,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         // 'PDF' => Barryvdh\DomPDF\Facade::class, // don't know why doesn't work https://github.com/barryvdh/laravel-dompdf#using
     ],
 

@@ -11,6 +11,8 @@
 |
 */
 
+use App\Http\Controllers\Api\Master\CustomerController;
+
 Route::namespace('Web')->group(function () {
     Route::view('/', 'welcome');
 
@@ -36,4 +38,5 @@ Route::namespace('Web')->middleware('web-middleware')->group(function () {
 
 Route::namespace('Web')->middleware(['web-middleware', 'auth:web'])->group(function () {
     Route::get('/home', 'HomeController@index')->name('home');
+    Route::get('/customer', [CustomerController::class, 'showexport']);
 });

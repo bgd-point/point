@@ -20,9 +20,9 @@ class CreateBranchUserTable extends Migration
             $table->boolean('is_default')->default(false);
             $table->timestamp('created_at');
 
-            $table->unique(['user_id', 'branch_id']);
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
+            // $table->unique(['user_id', 'branch_id']);
+            // $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            // $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade');
         });
     }
 
