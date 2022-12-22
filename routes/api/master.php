@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\Master\CustomerController;
+use Illuminate\Support\Facades\Route;
+
 Route::prefix('master')->namespace('Master')->group(function () {
     // User, Role and Permission
     Route::post('user-warehouses/attach', 'UserWarehouseController@attach');
@@ -42,6 +45,7 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::post('customer-groups/detach', 'CustomerGroupController@detach');
     Route::apiResource('customer-groups', 'CustomerGroupController');
     Route::post('customers/import', 'CustomerController@importCustomer');
+    Route::get('customers/export', [CustomerController::class, 'export'])->name('cexport');
     Route::put('customers/{id}/archive', 'CustomerController@archive');
     Route::patch('customers/{id}/archive', 'CustomerController@archive');
     Route::put('customers/bulk-archive', 'CustomerController@bulkArchive');

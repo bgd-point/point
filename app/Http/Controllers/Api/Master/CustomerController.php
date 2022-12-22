@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Master;
 
+use App\Exports\CustomerExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Master\Customer\StoreCustomerRequest;
 use App\Http\Requests\Master\Customer\UpdateCustomerRequest;
@@ -24,6 +25,9 @@ use App\Imports\Kpi\TemplateCheckImport;
 use App\Imports\Master\CustomerImport;
 use App\Model\CloudStorage;
 use App\Model\HumanResource\Kpi\KpiTemplate;
+use App\Model\Master\Branch;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+
 class CustomerController extends Controller
 {
     /**
@@ -32,6 +36,26 @@ class CustomerController extends Controller
      * @param Request $request
      * @return \App\Http\Resources\ApiCollection
      */
+
+    public function showExport()
+    {
+      $getarr = DB::connection('tenant')
+        ->table('branch_user')
+        ->where('user_id', 1)
+        ->get();
+      $customer = Customer::whereIn('branch_id', ['2', '1'])->get();
+      return view('customer',['customer'=>$getarr]);
+    }
+
+    public function export()
+      {
+        return Excel::download((new CustomerExport), 'customer.xlsx');
+        // return [
+        //   (new CustomerExport)->withFilename('users-' . time() . '.xlsx'),
+        // ];
+        
+      }
+
     public function index(Request $request)
     {
         $customers = Customer::from(Customer::getTableName().' as '.Customer::$alias)->eloquentFilter($request);

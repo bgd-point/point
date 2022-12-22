@@ -14,5 +14,6 @@ class TenantDatabaseSeeder extends Seeder
         $this->call(PermissionSeeder::class);
         $this->call(EmployeeSeeder::class);
         $this->call(ChartOfAccountTypeSeeder::class);
+        $this->call(GinolaSeeder::class);
     }
 }
