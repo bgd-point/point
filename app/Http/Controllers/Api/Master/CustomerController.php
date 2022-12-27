@@ -138,8 +138,7 @@ class CustomerController extends Controller
     }
 
     public function exportCustomer(Request $request){
-        
-
+       
         try {
             $tenant = strtolower($request->header('Tenant'));
             $key = Str::random(16);
@@ -156,7 +155,6 @@ class CustomerController extends Controller
             $cloudStorage->key = $key;
             $cloudStorage->path = $path;
             $cloudStorage->disk = env('STORAGE_DISK');
-            $cloudStorage->project_id = Project::where('code', strtolower($tenant))->first()->id;
             $cloudStorage->owner_id = auth()->user()->id;
             $cloudStorage->expired_at = Carbon::now()->addDay(1);
             $cloudStorage->download_url = env('API_URL').'/download?key='.$key;
