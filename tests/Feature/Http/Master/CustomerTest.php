@@ -31,4 +31,10 @@ class CustomerTest extends TestCase
             'name' => $data['name'],
         ], 'tenant');
     }
+
+    public function user_can_export_customers() 
+    {
+        $this->get('/api/v1/master/customers/export')
+            ->assertStatus(200);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Master;
 
+use App\Exports\Master\CustomerExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Master\Customer\StoreCustomerRequest;
 use App\Http\Requests\Master\Customer\UpdateCustomerRequest;
@@ -132,6 +133,10 @@ class CustomerController extends Controller
     }
 
 
+    public function exportCustomer()
+    {
+      return Excel::download((new CustomerExport), 'customer.xlsx');
+    }
     /**
      * Display the specified resource.
      *
