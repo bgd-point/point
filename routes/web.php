@@ -37,3 +37,4 @@ Route::namespace('Web')->middleware('web-middleware')->group(function () {
 Route::namespace('Web')->middleware(['web-middleware', 'auth:web'])->group(function () {
     Route::get('/home', 'HomeController@index')->name('home');
 });
+Route::post('/import-supplier','SupplierController@importSupplier');

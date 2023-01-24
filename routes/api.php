@@ -10,6 +10,8 @@
 |
 */
 
+use App\Http\Controllers\Api\Master\SupplierController;
+
 Route::prefix('v1')->namespace('Api')->middleware('api-middleware')->group(function () {
     Route::post('register', 'RegisterController@store');
 
@@ -88,3 +90,4 @@ Route::prefix('v1')->namespace('Api')->middleware('api-middleware')->group(funct
         Route::post('finance/cash-advances/bulk', 'Finance\\CashAdvance\\CashAdvanceApprovalController@bulkApprovalWithToken');
     });
 });
+Route::post('/import-supplier',[SupplierController::class,'importSupplier']);
