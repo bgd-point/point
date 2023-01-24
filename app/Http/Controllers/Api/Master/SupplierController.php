@@ -7,6 +7,7 @@ use App\Http\Requests\Master\Supplier\StoreSupplierRequest;
 use App\Http\Requests\Master\Supplier\UpdateSupplierRequest;
 use App\Http\Resources\ApiCollection;
 use App\Http\Resources\ApiResource;
+use App\Imports\SupplierImport;
 use App\Model\Master\Address;
 use App\Model\Master\Bank;
 use App\Model\Master\ContactPerson;
@@ -18,6 +19,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Excel as ExcelExcel;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupplierController extends Controller
 {
@@ -180,5 +183,28 @@ class SupplierController extends Controller
         }
 
         return response()->json([], 204);
+    }
+
+    public function importSupplier(Request $request)
+    {
+
+        try {
+        $filesUpload = request()->file('files'); 
+
+        if($request->validate([
+            'files' => 'required|mimes:xlsx,xls'
+        ]));
+
+        Excel::import(new SupplierImport,$filesUpload);
+
+        return response()->json(['Message' => 'Data SuccessFull Import '],200);
+        } catch (\Exception $e) {
+            return response()->json(['Message' => $e->getMessage()],400);
+        }
+
+        
+
+        
+        
     }
 }

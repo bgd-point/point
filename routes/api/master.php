@@ -61,6 +61,7 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::post('supplier-groups/detach', 'SupplierGroupController@detach');
     Route::apiResource('supplier-groups', 'SupplierGroupController');
     Route::apiResource('suppliers', 'SupplierController');
+    Route::post('import-supplier','SupplierController@importSupplier');
     // Expedition
     Route::apiResource('expeditions', 'ExpeditionController');
     // Allocation
