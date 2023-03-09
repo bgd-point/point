@@ -7,6 +7,7 @@ use App\Http\Requests\Master\Supplier\StoreSupplierRequest;
 use App\Http\Requests\Master\Supplier\UpdateSupplierRequest;
 use App\Http\Resources\ApiCollection;
 use App\Http\Resources\ApiResource;
+use App\Imports\SupplierImport;
 use App\Model\Master\Address;
 use App\Model\Master\Bank;
 use App\Model\Master\ContactPerson;
@@ -29,7 +30,7 @@ class SupplierController extends Controller
      */
     public function index(Request $request)
     {
-        $suppliers = Supplier::from(Supplier::getTableName().' as '.Supplier::$alias)->eloquentFilter($request);
+        $suppliers = Supplier::from(Supplier::getTableName() . ' as ' . Supplier::$alias)->eloquentFilter($request);
 
         $suppliers = Supplier::joins($suppliers, $request->get('join'));
 
@@ -69,9 +70,9 @@ class SupplierController extends Controller
 
         if ($request->has('groups')) {
             foreach ($request->get('groups') as $arrGroups) {
-                if (! empty($arrGroups['name'])) {
+                if (!empty($arrGroups['name'])) {
                     $group = SupplierGroup::where('name', $arrGroups['name'])->first();
-                    if (! $group) {
+                    if (!$group) {
                         $group = new SupplierGroup;
                         $group->name = $arrGroups['name'];
                         $group->save();
@@ -94,6 +95,26 @@ class SupplierController extends Controller
         return new ApiResource($supplier);
     }
 
+    public function import(Request $request)
+    {
+        try {
+            $file = $request->file('file');
+            $import = new SupplierImport;
+
+            $import->import($file);
+
+            return response()->json([
+                'success' => true,
+                'message' => $import->getRowCount() . ' data import success'
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage(),
+            ], 422);
+        }
+    }
+
     /**
      * Display the specified resource.
      *
@@ -103,11 +124,11 @@ class SupplierController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $supplier = Supplier::from(Supplier::getTableName().' as '.Supplier::$alias)->eloquentFilter($request);
+        $supplier = Supplier::from(Supplier::getTableName() . ' as ' . Supplier::$alias)->eloquentFilter($request);
 
         $supplier = Supplier::joins($supplier, $request->get('join'));
 
-        $supplier = $supplier->where(Supplier::$alias.'.id', $id)->first();
+        $supplier = $supplier->where(Supplier::$alias . '.id', $id)->first();
 
         if ($request->get('total_payable')) {
             $supplier->total_payable = $supplier->totalAccountPayable();
@@ -137,9 +158,9 @@ class SupplierController extends Controller
 
         if ($request->has('groups')) {
             foreach ($request->get('groups') as $arrGroups) {
-                if (! empty($arrGroups['name'])) {
+                if (!empty($arrGroups['name'])) {
                     $group = Supplier::where('name', $arrGroups['name'])->first();
-                    if (! $group) {
+                    if (!$group) {
                         $group = new Supplier;
                         $group->name = $arrGroups['name'];
                         $group->save();

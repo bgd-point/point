@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+
 Route::prefix('master')->namespace('Master')->group(function () {
     // User, Role and Permission
     Route::post('user-warehouses/attach', 'UserWarehouseController@attach');
@@ -61,6 +63,7 @@ Route::prefix('master')->namespace('Master')->group(function () {
     Route::post('supplier-groups/detach', 'SupplierGroupController@detach');
     Route::apiResource('supplier-groups', 'SupplierGroupController');
     Route::apiResource('suppliers', 'SupplierController');
+    Route::post('suppliers/import', 'SupplierController@import')->name('supplier.import');
     // Expedition
     Route::apiResource('expeditions', 'ExpeditionController');
     // Allocation
