@@ -10,6 +10,8 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
+
 Route::prefix('v1')->namespace('Api')->middleware('api-middleware')->group(function () {
     Route::post('register', 'RegisterController@store');
 
@@ -81,7 +83,7 @@ Route::prefix('v1')->namespace('Api')->middleware('api-middleware')->group(funct
         require base_path('routes/api/plugin/pin-point.php');
         require base_path('routes/api/plugin/play-book.php');
     });
-    
+
     //Approve/reject with token
     Route::prefix('approval-with-token')->group(function () {
         Route::post('finance/cash-advances', 'Finance\\CashAdvance\\CashAdvanceApprovalController@approvalWithToken');
